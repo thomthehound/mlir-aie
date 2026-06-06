@@ -320,6 +320,7 @@ Interfaces: `InferTypeOpInterface`, `OpAsmOpInterface`, `TileElement`
 <tr><td><code>link_files</code></td><td>::mlir::ArrayAttr</td><td>string array attribute</td></tr>
 <tr><td><code>elf_file</code></td><td>::mlir::StringAttr</td><td>string attribute</td></tr>
 <tr><td><code>dynamic_objfifo_lowering</code></td><td>::mlir::BoolAttr</td><td>bool attribute</td></tr>
+<tr><td><code>emit_parameter_sync_preamble</code></td><td>::mlir::BoolAttr</td><td>bool attribute</td></tr>
 </table>
 
 #### Operands:
@@ -563,6 +564,8 @@ is 0). All counts are expressed in multiples of the element width.
     Tuple encoding the type and header of a packet;
   </td></tr>
 <tr><td><code>burst_length</code></td><td>::mlir::IntegerAttr</td><td>32-bit signless integer attribute</td></tr>
+<tr><td><code>offset_parameter</code></td><td>::mlir::FlatSymbolRefAttr</td><td>flat symbol reference attribute</td></tr>
+<tr><td><code>offset_state_table_idx</code></td><td>::mlir::IntegerAttr</td><td>8-bit unsigned integer attribute</td></tr>
 <tr><td><code>next_bd_id</code></td><td>::mlir::IntegerAttr</td><td>32-bit signless integer attribute</td></tr>
 </table>
 
@@ -1160,6 +1163,7 @@ operation ::= `aie.objectfifo` $sym_name
               `,`
               $elemNumber
               `)` attr-dict `:` $elemType
+              custom<ObjectFifoConsumerElemType>($consumerElemType)
               custom<ObjectFifoInitValues>(ref($elemNumber), ref($elemType), $initValues)
 ```
 
@@ -1258,6 +1262,7 @@ Interfaces: `Symbol`
 <tr><td><code>sym_name</code></td><td>::mlir::StringAttr</td><td>string attribute</td></tr>
 <tr><td><code>elemNumber</code></td><td>::mlir::Attribute</td><td>32-bit signless integer attribute whose minimum value is 0 or array attribute</td></tr>
 <tr><td><code>elemType</code></td><td>::mlir::TypeAttr</td><td>type attribute of </td></tr>
+<tr><td><code>consumerElemType</code></td><td>::mlir::TypeAttr</td><td>type attribute of </td></tr>
 <tr><td><code>dimensionsToStream</code></td><td>::xilinx::AIE::BDDimLayoutArrayAttr</td><td></td></tr>
 <tr><td><code>dimensionsFromStreamPerConsumer</code></td><td>::xilinx::AIE::BDDimLayoutArrayArrayAttr</td><td></td></tr>
 <tr><td><code>via_DMA</code></td><td>::mlir::BoolAttr</td><td>bool attribute</td></tr>
@@ -1877,6 +1882,7 @@ Interfaces: `Symbol`
 <table>
 <tr><th>Attribute</th><th>MLIR Type</th><th>Description</th></tr>
 <tr><td><code>sym_name</code></td><td>::mlir::StringAttr</td><td>string attribute</td></tr>
+<tr><td><code>emit_parameter_sync_preamble</code></td><td>::mlir::BoolAttr</td><td>bool attribute</td></tr>
 </table>
 
 
@@ -2457,12 +2463,14 @@ Attributes:
 - arg_idx (default=4): XRT argument index for trace buffer. Set to -1 to
   append trace data after the last tensor argument in the runtime_sequence.
 - routing (default=single): Shim routing strategy. Currently only 'single'
-  is supported, which routes all traces to column 0's shim.
+  is supported, which routes all traces to a single shim tile.
+- egress_shim_col (default=0): Column index of the shim tile that receives
+  the trace packet flows.
 
 Example:
 ```mlir
 aie.runtime_sequence(%arg0: memref<16xi32>) {
-  aie.trace.host_config buffer_size=65536
+  aie.trace.host_config buffer_size=65536 egress_shim_col=4
   aie.trace.start_config @trace1
 }
 ```
@@ -2479,6 +2487,7 @@ Traits: `HasParent<RuntimeSequenceOp>`
     Determines how traces are routed to shim tiles:
     - single: All traces route to a single shim tile (column 0)
   {{% /markdown %}}</details></td></tr>
+<tr><td><code>egress_shim_col</code></td><td>::mlir::IntegerAttr</td><td>32-bit signless integer attribute</td></tr>
 </table>
 
 
