@@ -21,7 +21,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">IRON<span id="projectnumber">&#160;8da13e91d8a7b273c096fe87fad50fc2304f6105</span>
+   <div id="projectname">IRON<span id="projectnumber">&#160;1a5eed49d3c0721a318ac369f725acc96b7c4584</span>
    </div>
   </td>
  </tr>
@@ -189,7 +189,7 @@ Protected Attributes</h2></td></tr>
 Args:
     srcs (list[ObjectFifoHandle] | ObjectFifoHandle): A list of consumer ObjectFifoHandles to link.
     dsts (list[ObjectFifoHandle] | ObjectFifoHandle): A list of producer ObjectFifoHandles to link.
-    tile (Tile, optional): The tile where the link occurs. Defaults to AnyMemTile.
+    tile (Tile, optional): The tile where the link occurs. Also accepts None (treated as AnyMemTile). Defaults to AnyMemTile.
     src_offsets (list[int] | None, optional): If many sources, one offset per source is required to split the destination. Defaults to None (empty list).
     dst_offsets (list[int] | None, optional): If many destinations, one offset per destination is required to split the source. Defaults to None (empty list).
 
